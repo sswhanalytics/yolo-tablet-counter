@@ -1,0 +1,9 @@
+# YOLO training outputs
+runs/
+
+# Python
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/secrets.toml
