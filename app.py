@@ -37,7 +37,7 @@ st.caption("Detect and count tablets in real time.")
 # --------------------------------------------------------------------------
 st.sidebar.header("Settings")
 
-MODEL_PATH = st.sidebar.text_input("Model Path", value="runs\\detect\\trainM (150)\\weights\\best.pt")
+MODEL_PATH = st.sidebar.text_input("Model Path", value="best.pt")
 CONF_THRESH = st.sidebar.slider("Confidence threshold", 0.0, 1.0, 0.25, 0.01)
 IOU_THRESH = st.sidebar.slider("IoU threshold (NMS)", 0.0, 1.0, 0.45, 0.01)
 BOX_THICKNESS = st.sidebar.slider("Box line thickness", 1, 5, 2)
