@@ -40,8 +40,7 @@ st.sidebar.header("Settings")
 MODEL_PATH = st.sidebar.text_input("Model Path", value="best.pt")
 CONF_THRESH = st.sidebar.slider("Confidence threshold", 0.0, 1.0, 0.25, 0.01)
 IOU_THRESH = st.sidebar.slider("IoU threshold (NMS)", 0.0, 1.0, 0.45, 0.01)
-BOX_THICKNESS = st.sidebar.slider("Box line thickness", 1, 5, 2)
-SHOW_CONF = st.sidebar.checkbox("Show confidence on labels", value=True)
+DOT_RADIUS = st.sidebar.slider("Dot radius", 2, 15, 6)
 
 @st.cache_resource(show_spinner="Loading YOLO model...")
 def load_model(path: str):
@@ -89,23 +88,14 @@ def process_frame(frame: av.VideoFrame) -> av.VideoFrame:
     count = 0
     if results.boxes is not None:
         count = len(results.boxes)
-        for box in results.boxes:
+        for idx, box in enumerate(results.boxes, start=1):
             x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-            conf = float(box.conf[0])
-            cls_id = int(box.cls[0])
-            cls_name = model.names.get(cls_id, str(cls_id))
+            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
  
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), BOX_THICKNESS)
- 
-            label = f"{cls_name}"
-            if SHOW_CONF:
-                label += f" {conf:.2f}"
-            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-            cv2.rectangle(img, (x1, y1 - th - 6), (x1 + tw + 4, y1), (0, 255, 0), -1)
-            cv2.putText(
-                img, label, (x1 + 2, y1 - 4),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA,
-            )
+            # Solid dot at the tablet's center, with a thin white outline
+            # so it stays visible against tablets of any color.
+            cv2.circle(img, (cx, cy), DOT_RADIUS, (0, 0, 255), -1)
+            cv2.circle(img, (cx, cy), DOT_RADIUS, (255, 255, 255), 1)
  
     # Overlay running count on the top-left corner
     banner = f"Tablets detected: {count}"
@@ -203,4 +193,3 @@ else:
                     mime="image/png",
                     key=f"dl_{ts}_{cnt}_{id(img)}",
                 )
- 
